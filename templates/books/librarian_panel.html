@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Kutubxonachi paneli{% endblock %}
+
+{% block content %}
+<h2 class="mb-4"><i class="fas fa-user-tie"></i> Kutubxonachi paneli</h2>
+
+<div class="table-responsive">
+    <table class="table table-hover shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>Talaba</th>
+                <th>Kitob</th>
+                <th>Band qilingan</th>
+                <th>Qaytarish muddati</th>
+                <th>Holat</th>
+                <th>Amallar</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for booking in bookings %}
+            <tr class="{% if booking.is_overdue %}table-danger{% endif %}">
+                <td>{{ booking.user.username }}</td>
+                <td>{{ booking.book.title }}</td>
+                <td>{{ booking.booked_at|date:"d.m.Y" }}</td>
+                <td>{{ booking.due_date|date:"d.m.Y" }}</td>
+                <td>
+                    <span class="badge 
+                        {% if booking.status == 'approved' %}bg-success
+                        {% elif booking.status == 'pending' %}bg-warning text-dark
+                        {% elif booking.status == 'returned' %}bg-secondary
+                        {% else %}bg-danger{% endif %}">
+                        {{ booking.get_status_display }}
+                    </span>
+                    {% if booking.is_overdue %}
+                        <span class="badge bg-danger">Kechikdi!</span>
+                    {% endif %}
+                </td>
+                <td>
+                    {% if booking.status == 'pending' %}
+                        <a href="/books/librarian/{{ booking.pk }}/approve/" 
+                           class="btn btn-success btn-sm">
+                            <i class="fas fa-check"></i> Tasdiqlash
+                        </a>
+                        <a href="/books/librarian/{{ booking.pk }}/cancel/" 
+                           class="btn btn-danger btn-sm">
+                            <i class="fas fa-times"></i> Bekor
+                        </a>
+                    {% elif booking.status == 'approved' %}
+                        <a href="/books/librarian/{{ booking.pk }}/return/" 
+                           class="btn btn-primary btn-sm">
+                            <i class="fas fa-undo"></i> Qaytarildi
+                        </a>
+                    {% else %}
+                        <span class="text-muted">—</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
